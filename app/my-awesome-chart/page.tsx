@@ -1,11 +1,29 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+  VictoryChart,
+  VictoryLine,
+  VictoryTheme
+} from 'victory';
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 
 import { Title } from "@/components/ui/title";
 import { GridContainer } from "@/components/grid-container";
+import { cn } from "@/lib/utils";
+
+type XDataPlot = {
+  x: string;
+  y: number;
+}
 
 export default function AwesomeChart() {
+  const [data, setData] = useState<Array<null> | Array<XDataPlot>>([]);
+  const [data2013, setData2013] = useState<Array<null> | Array<XDataPlot>>([]);
+
   useEffect(() => {
     const fetchData = async() => {
       try {
@@ -31,7 +49,34 @@ export default function AwesomeChart() {
     <GridContainer>
       <Title>My Awesome Chart</Title>
 
-      <div className="flex h-full w-full flex-col">Display your awesome chart here...</div>
+      <div className="flex h-full w-full flex-col">
+      <Card className={cn("w-full bg-white")}>
+          <CardContent>
+            <VictoryChart
+            minDomain={{ y: 1.1 }}
+            maxDomain={{ y: 1.7 }}
+            theme={VictoryTheme.material}
+            style={{
+              background: { fill: "white" }
+            }}
+            height={200}
+          >
+            <VictoryLine
+              style={{
+                data: { stroke: "#c43a31" },
+              }}
+              data={data2013}
+            />
+            <VictoryLine
+              style={{
+                data: { stroke: "blue" },
+              }}
+              data={data}
+            />
+          </VictoryChart>
+          </CardContent>
+        </Card>
+      </div>
     </GridContainer>
   );
 }
