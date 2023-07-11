@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import {
+  VictoryAxis,
   VictoryChart,
+  VictoryLabel,
+  VictoryLegend,
   VictoryLine,
   VictoryTheme
 } from 'victory';
@@ -18,6 +21,10 @@ import { cn } from "@/lib/utils";
 type XDataPlot = {
   x: string;
   y: number;
+}
+
+type Point = {
+  [date:string]: { USD: number }
 }
 
 export default function AwesomeChart() {
@@ -36,7 +43,28 @@ export default function AwesomeChart() {
           res2013.json()
         ]);
         console.log({ resData, resData2013 });
-
+        if (resData && resData.rates) {
+          const resDataReduced = Object.entries(resData.rates).reduce((acc: Array<XDataPlot>, curr: any) => {
+            const [date, currency] = curr;
+            const newDate = new Date(date);
+            acc.push({
+              x: new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()).toDateString(),
+              y: currency.USD
+            });
+            return acc;
+          }, []);
+          const resData2013Reduced = Object.entries(resData2013.rates).reduce((acc: Array<XDataPlot>, curr: any) => {
+            const [date, currency] = curr;
+            acc.push({
+              x: new Date(new Date(date).setFullYear(2023)).toDateString(),
+              y: currency.USD
+            });
+            return acc;
+          }, []);
+          console.log({ resDataReduced, resData2013Reduced });
+          setData(resDataReduced);
+          setData2013(resData2013Reduced);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -61,6 +89,18 @@ export default function AwesomeChart() {
             }}
             height={200}
           >
+            <VictoryLabel text="My Awesome Chart" x={70} y={10} textAnchor="middle"/>
+            <VictoryLegend
+              x={50}
+              y={10}
+              width={200}
+              orientation="horizontal"
+              style={{ border: { stroke: "black" }, title: {fontSize: 4 } }}
+              data={[
+                { name: "Jan 2013: GBP to USD", symbol: { fill: "#c43a31" } },
+                { name: "Jan 2023: GBP to USD", symbol: { fill: "blue" } },
+              ]}
+            />
             <VictoryLine
               style={{
                 data: { stroke: "#c43a31" },
@@ -72,6 +112,24 @@ export default function AwesomeChart() {
                 data: { stroke: "blue" },
               }}
               data={data}
+            />
+            <VictoryAxis dependentAxis
+              label="GBP to USD"
+              style={{
+                axisLabel: {fontSize: 7, padding: 30},
+                tickLabels: {fontSize: 5, padding: 5},
+              }}
+            />
+            <VictoryAxis
+              label="Date"
+              style={{
+                axis: {stroke: "#756f6a"},
+                axisLabel: {fontSize: 7, padding: 20},
+                grid: { stroke: ({ tick }) => tick },
+                ticks: {stroke: "grey", size: 5},
+                tickLabels: {fontSize: 5, padding: 5}
+              }}
+              tickValues={[2.11, 3.9, 6.1, 8.05]}
             />
           </VictoryChart>
           </CardContent>
