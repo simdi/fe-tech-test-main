@@ -23,13 +23,10 @@ type XDataPlot = {
   y: number;
 }
 
-type Point = {
-  [date:string]: { USD: number }
-}
-
 export default function AwesomeChart() {
   const [data, setData] = useState<Array<null> | Array<XDataPlot>>([]);
   const [data2013, setData2013] = useState<Array<null> | Array<XDataPlot>>([]);
+  const [labels, setLabels] = useState([]);
 
   useEffect(() => {
     const fetchData = async() => {
@@ -42,13 +39,13 @@ export default function AwesomeChart() {
           res.json(),
           res2013.json()
         ]);
-        console.log({ resData, resData2013 });
+
         if (resData && resData.rates) {
           const resDataReduced = Object.entries(resData.rates).reduce((acc: Array<XDataPlot>, curr: any) => {
             const [date, currency] = curr;
             const newDate = new Date(date);
             acc.push({
-              x: new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()).toDateString(),
+              x: new Date(newDate).toDateString(),
               y: currency.USD
             });
             return acc;
@@ -91,19 +88,23 @@ export default function AwesomeChart() {
           >
             <VictoryLabel text="My Awesome Chart" x={70} y={10} textAnchor="middle"/>
             <VictoryLegend
-              x={50}
-              y={10}
+              x={190}
+              y={25}
               width={200}
               orientation="horizontal"
-              style={{ border: { stroke: "black" }, title: {fontSize: 4 } }}
+              style={{
+                border: { stroke: "black" },
+                title: {fontSize: 4, padding: 5 },
+                labels: { fontSize: 5},
+              }}
               data={[
-                { name: "Jan 2013: GBP to USD", symbol: { fill: "#c43a31" } },
+                { name: "Jan 2013: GBP to USD", symbol: { fill: "grey" } },
                 { name: "Jan 2023: GBP to USD", symbol: { fill: "blue" } },
               ]}
             />
             <VictoryLine
               style={{
-                data: { stroke: "#c43a31" },
+                data: { strokeDasharray: "grey" },
               }}
               data={data2013}
             />
